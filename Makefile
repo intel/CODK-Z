@@ -1,4 +1,5 @@
 M_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+OUT_DIR := $(M_DIR)/out
 Z_DIR := $(M_DIR)/zephyr
 Z_VER := 1.4.0
 ZSDK_VER := 0.8.1
@@ -28,21 +29,22 @@ setup:
 	@echo "Setting options in ~/.zehyrrc"
 	@echo "export ZEPHYR_GCC_VARIANT=zephyr" > ~/.zephyrrc
 	@echo "export ZEPHYR_SDK_INSTALL_DIR=~/zephyr-sdk" >> ~/.zephyrrc
+	@echo "Please run: source zephyr/zephyr-env.sh"
 
 check-source:
-	@echo "Make sure zephyr-env.sh is sourced"
+	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source zephyr/zephyr-env.sh" ; exit 1 ; fi
 
 compile: check-source
-	-mkdir out
+	@test -d out || mkdir out
 	@echo Compiling x86 core
-	make O=$(M_DIR)/out/x86 -C $(Z_DIR)/samples/hello_world/microkernel
+	make O=$(OUT_DIR)/x86 BOARD=arduino_101_factory ARCH=x86 -C $(Z_DIR)/samples/hello_world/microkernel
 	@echo Compiling ARC core
-	make O=$(M_DIR)/out/ARC -C $(Z_DIR)/samples/hello_world/nanokernel
+	make O=$(OUT_DIR)/ARC BOARD=arduino_101_sss_factory ARCH=arc -C $(Z_DIR)/samples/hello_world/nanokernel
 
 upload:
 	@echo Uploading compiled binaries
 
 clean:
-	rm -rf out
+	rm -rf $(OUT_DIR)
 
 .PHONY: help check-root install-dep setup setup-build-env compile upload clean

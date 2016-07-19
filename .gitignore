@@ -1,2 +1,4 @@
 /zephyr-sdk-*-setup.run
 /zephyr/
+/out/
+.DS_Store
