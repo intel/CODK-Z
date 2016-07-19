@@ -1,4 +1,5 @@
-Z_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+M_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+Z_DIR := $(M_DIR)/zephyr
 Z_VER := 1.4.0
 ZSDK_VER := 0.8.1
 
@@ -28,13 +29,20 @@ setup:
 	@echo "export ZEPHYR_GCC_VARIANT=zephyr" > ~/.zephyrrc
 	@echo "export ZEPHYR_SDK_INSTALL_DIR=~/zephyr-sdk" >> ~/.zephyrrc
 
-compile:
+check-source:
+	@echo "Make sure zephyr-env.sh is sourced"
+
+compile: check-source
+	-mkdir out
 	@echo Compiling x86 core
+	make O=$(M_DIR)/out/x86 -C $(Z_DIR)/samples/hello_world/microkernel
 	@echo Compiling ARC core
+	make O=$(M_DIR)/out/ARC -C $(Z_DIR)/samples/hello_world/nanokernel
 
 upload:
 	@echo Uploading compiled binaries
 
 clean:
+	rm -rf out
 
-.PHONY: help check-root install-dep setup compile upload clean
+.PHONY: help check-root install-dep setup setup-build-env compile upload clean
