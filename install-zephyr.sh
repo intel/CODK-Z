@@ -24,14 +24,9 @@ else
     fi
     echo "Installing Zephyr SDK to ${ZSDK_PATH}"
     { echo "${ZSDK_PATH}"; } | ./${ZSDK_FILE} --nox11
-fi
-
-if [ -f ~/.zephyrrc ] ; then
-    echo "~/.zephyrrc already exists. Skipping setting options."
-else
     echo "Setting options in ~/.zephyrrc"
     echo "export ZEPHYR_GCC_VARIANT=zephyr" > ~/.zephyrrc
     echo "export ZEPHYR_SDK_INSTALL_DIR=~/zephyr-sdk" >> ~/.zephyrrc
 fi
 
-echo "Please run: source zephyr/zephyr-env.sh"
+echo "Please run: source ${Z_PATH}/zephyr-env.sh"

@@ -1,10 +1,10 @@
 M_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 OUT_DIR := $(M_DIR)/out
-Z_DIR := $(M_DIR)/zephyr
+Z_DIR := $(realpath $(M_DIR)/../zephyr)
 Z_VER := 1.4.0
 ZSDK_VER := 0.8.1
-P-X86 ?= $(Z_DIR)/samples/hello_world/microkernel
-P-ARC ?= $(Z_DIR)/samples/hello_world/nanokernel
+P-X86 ?= $(M_DIR)/ipm/ipm_demo_lmt
+P-ARC ?= $(M_DIR)/ipm/ipm_deml_arc
 
 help:
 	@echo "Install dependencies: sudo make install-dep"
@@ -23,7 +23,7 @@ setup:
 	@./install-zephyr.sh $(Z_VER) $(ZSDK_VER)
 
 check-source:
-	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source zephyr/zephyr-env.sh" ; exit 1 ; fi
+	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(Z_DIR)/zephyr-env.sh" ; exit 1 ; fi
 
 compile: check-source
 	@test -d out || mkdir out
