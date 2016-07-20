@@ -20,18 +20,7 @@ install-dep: check-root
 	apt-get install -y git make gcc gcc-multilib g++ libc6-dev-i386 g++-multilib python3-ply
 
 setup:
-	@echo "Downloading Zephyr"
-	curl -sL http://bit.ly/1Y6G8d2 | tar xz
-	@mv zephyr-v$(Z_VER) zephyr
-	@echo "Downloading Zephyr SDK"
-	curl -OL https://nexus.zephyrproject.org/content/repositories/releases/org/zephyrproject/zephyr-sdk/$(ZSDK_VER)-i686/zephyr-sdk-$(ZSDK_VER)-i686-setup.run
-	chmod 755 zephyr-sdk-$(ZSDK_VER)-i686-setup.run
-	@echo "Installing Zephyr SDK"
-	{ echo "~/zephyr-sdk"; } | ./zephyr-sdk-$(ZSDK_VER)-i686-setup.run --nox11
-	@echo "Setting options in ~/.zehyrrc"
-	@echo "export ZEPHYR_GCC_VARIANT=zephyr" > ~/.zephyrrc
-	@echo "export ZEPHYR_SDK_INSTALL_DIR=~/zephyr-sdk" >> ~/.zephyrrc
-	@echo "Please run: source zephyr/zephyr-env.sh"
+	@./install-zephyr.sh $(Z_VER) $(ZSDK_VER)
 
 check-source:
 	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source zephyr/zephyr-env.sh" ; exit 1 ; fi
@@ -49,4 +38,4 @@ upload:
 clean:
 	rm -rf $(OUT_DIR)
 
-.PHONY: help check-root install-dep setup setup-build-env compile upload clean
+.PHONY: help check-root install-dep setup compile upload clean
