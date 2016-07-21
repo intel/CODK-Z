@@ -1,6 +1,7 @@
 M_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 OUT_DIR := $(M_DIR)/out
 Z_DIR := $(realpath $(M_DIR)/../zephyr)
+Z_DIR_REL := $(shell $(M_DIR)/relpath "$(M_DIR)" "$(Z_DIR)")
 Z_VER := 1.4.0
 ZSDK_VER := 0.8.1
 P-X86 ?= $(M_DIR)/x86
@@ -23,7 +24,7 @@ setup:
 	@./install-zephyr.sh $(Z_VER) $(ZSDK_VER)
 
 check-source:
-	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(Z_DIR)/zephyr-env.sh" ; exit 1 ; fi
+	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(Z_DIR_REL)/zephyr-env.sh" ; exit 1 ; fi
 
 compile: check-source
 	@test -d out || mkdir out
