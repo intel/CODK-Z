@@ -3,8 +3,8 @@ OUT_DIR := $(M_DIR)/out
 Z_DIR := $(realpath $(M_DIR)/../zephyr)
 Z_VER := 1.4.0
 ZSDK_VER := 0.8.1
-P-X86 ?= $(M_DIR)/ipm/ipm_demo_lmt
-P-ARC ?= $(M_DIR)/ipm/ipm_deml_arc
+P-X86 ?= $(M_DIR)/x86
+P-ARC ?= $(M_DIR)/arc
 
 help:
 	@echo "Install dependencies: sudo make install-dep"
