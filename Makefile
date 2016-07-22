@@ -37,8 +37,7 @@ upload:
 	@echo Uploading compiled binaries
 
 clean: check-source
-	make -C $(P-X86) clean
-	make -C $(P-ARC) clean
-	rm -rf $(OUT_DIR)
+	make O=$(OUT_DIR)/x86 -C $(P-X86) clean
+	make O=$(OUT_DIR)/ARC -C $(P-ARC) clean
 
 .PHONY: help check-root install-dep setup compile upload clean
