@@ -19,6 +19,7 @@ check-root:
 install-dep: check-root
 	apt-get update
 	apt-get install -y git make gcc gcc-multilib g++ libc6-dev-i386 g++-multilib python3-ply
+	cp -f $(M_DIR)/utils/drivers/rules.d/*.rules /etc/udev/rules.d/
 
 setup:
 	@./install-zephyr.sh $(Z_VER) $(ZSDK_VER)
@@ -35,6 +36,7 @@ compile: check-source
 
 upload:
 	@echo Uploading compiled binaries
+	$(M_DIR)/utils/flash_dfu.sh -a $(M_DIR)/out/ARC/zephyr.bin -x $(M_DIR)/out/x86/zephyr.bin
 
 clean: check-source
 	rm -rf $(OUT_DIR)
