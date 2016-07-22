@@ -36,7 +36,9 @@ compile: check-source
 upload:
 	@echo Uploading compiled binaries
 
-clean:
+clean: check-source
+	make -C $(P-X86) clean
+	make -C $(P-ARC) clean
 	rm -rf $(OUT_DIR)
 
 .PHONY: help check-root install-dep setup compile upload clean
