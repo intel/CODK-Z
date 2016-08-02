@@ -11,7 +11,8 @@ help:
 	@echo "Install dependencies: sudo make install-dep"
 	@echo "Set up the build env: make setup"
 	@echo "Compile: make compile P-X86=<x86 project path> P-ARC=<arc project path>"
-	@echo "Upload: make upload"
+	@echo "Upload via DFU: make upload-dfu"
+	@echo "Upload via JTAG: make upload-jtag"
 
 check-root:
 	@if [ `whoami` != root ]; then echo "Please run as sudoer/root" ; exit 1 ; fi
@@ -32,11 +33,15 @@ compile: check-source
 	@echo Compiling x86 core
 	make O=$(OUT_DIR)/x86 BOARD=arduino_101_factory ARCH=x86 -C $(P-X86)
 	@echo Compiling ARC core
-	make O=$(OUT_DIR)/ARC BOARD=arduino_101_sss_factory ARCH=arc -C $(P-ARC)
+	make O=$(OUT_DIR)/arc BOARD=arduino_101_sss_factory ARCH=arc -C $(P-ARC)
 
-upload:
-	@echo Uploading compiled binaries
-	$(M_DIR)/utils/flash_dfu.sh -a $(M_DIR)/out/ARC/zephyr.bin -x $(M_DIR)/out/x86/zephyr.bin
+upload-dfu:
+	@echo Uploading compiled binaries using DFU
+	$(M_DIR)/utils/flash_dfu.sh -a $(M_DIR)/out/arc/zephyr.bin -x $(M_DIR)/out/x86/zephyr.bin
+
+upload-jtag:
+	@echo Uploading compiled binaries using JTAG
+	$(M_DIR)/utils/flash_jtag.sh -a $(M_DIR)/out/arc/zephyr.bin -x $(M_DIR)/out/x86/zephyr.bin
 
 clean: check-source
 	rm -rf $(OUT_DIR)

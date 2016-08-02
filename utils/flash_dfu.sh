@@ -17,7 +17,7 @@ trap_to_dfu() {
   [ -f "trapped.bin" ] && rm -f "trapped.bin"
 
   # Loop to read from 101 so that it stays on DFU mode afterwards
-  until $DFU -a 4 -U trapped.bin
+  until $DFU -a 4 -U trapped.bin > /dev/null 2>&1
   do
     sleep 0.1
   done
