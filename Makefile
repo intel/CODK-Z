@@ -11,7 +11,7 @@ FW_DIR := $(TOP_DIR)/firmware
 SW_DIR := $(TOP_DIR)/software
 FWPROJ_DIR ?= $(FW_DIR)/examples/hello
 SWPROJ_DIR ?= $(SW_DIR)/examples/hello
-export CODK_DIR ?= $(TOP_DIR)
+CODK_DIR ?= $(TOP_DIR)
 
 help:
 
