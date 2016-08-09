@@ -39,7 +39,7 @@ $(CODK_FLASHPACK_DIR):
 check-source:
 	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(ZEPHYR_DIR_REL)/zephyr-env.sh" ; exit 1 ; fi
 
-compile: compile-firmware compile_software
+compile: compile-firmware compile-software
 
 compile-firmware: check-source
 	@test -d out || mkdir out
@@ -53,7 +53,7 @@ compile-software: check-source
 
 upload: upload-firmware-dfu upload-software-dfu
 
-upload-fitmware-dfu:
+upload-firmware-dfu:
 	$(CODK_FLASHPACK_DIR)/flash_dfu.sh -x $(OUT_DIR)/x86/zephyr.bin
 
 upload-software-dfu:
@@ -61,7 +61,7 @@ upload-software-dfu:
 
 upload-jtag: upload-firmware-jtag upload-software-jtag
 
-upload-fitmware-jtag:
+upload-firmware-jtag:
 	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -x $(OUT_DIR)/x86/zephyr.bin
 
 upload-software-jtag:
