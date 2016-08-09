@@ -14,11 +14,6 @@ SWPROJ_DIR ?= $(SW_DIR)/examples/hello
 export CODK_DIR ?= $(TOP_DIR)
 
 help:
-	@echo "Install dependencies: sudo make install-dep"
-	@echo "Set up the build env: make setup"
-	@echo "Compile: make compile P-X86=<x86 project path> P-ARC=<arc project path>"
-	@echo "Upload via DFU: make upload-dfu"
-	@echo "Upload via JTAG: make upload-jtag"
 
 check-root:
 	@if [ `whoami` != root ]; then echo "Please run as sudoer/root" ; exit 1 ; fi
