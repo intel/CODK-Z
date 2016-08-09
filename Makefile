@@ -4,8 +4,11 @@ Z_DIR := $(M_DIR)/../zephyr
 Z_DIR_REL := $(shell $(M_DIR)/relpath "$(M_DIR)" "$(Z_DIR)")
 Z_VER := 1.4.0
 ZSDK_VER := 0.8.1
-P-X86 ?= $(M_DIR)/x86
-P-ARC ?= $(M_DIR)/arc
+SW_DIR := $(M_DIR)/software
+FW_DIR := $(M_DIR)/firmware
+P-X86 ?= $(SW_DIR)/examples/hello
+P-ARC ?= $(FW_DIR)/examples/hello
+export CODK_DIR ?= $(M_DIR)
 
 help:
 	@echo "Install dependencies: sudo make install-dep"
@@ -28,10 +31,15 @@ setup:
 check-source:
 	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(Z_DIR_REL)/zephyr-env.sh" ; exit 1 ; fi
 
-compile: check-source
+compile: compile-firmware compile_software
+
+compile-firmware: check-source
 	@test -d out || mkdir out
 	@echo Compiling x86 core
 	make O=$(OUT_DIR)/x86 BOARD=arduino_101_factory ARCH=x86 -C $(P-X86)
+
+compile-software: check-source
+	@test -d out || mkdir out
 	@echo Compiling ARC core
 	make O=$(OUT_DIR)/arc BOARD=arduino_101_sss_factory ARCH=arc -C $(P-ARC)
 
