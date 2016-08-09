@@ -13,6 +13,7 @@
 mkdir CODK && cd $_
 git clone https://github.com/01org/CODK-Z.git
 cd CODK-Z
+make clone
 sudo make install-dep
 make setup
 source ../zephyr/zephyr-env.sh
