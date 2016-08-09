@@ -1,6 +1,6 @@
 TOP_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 CODK_FLASHPACK_URL := https://github.com/01org/CODK-Z-Flashpack.git
-CODK_FLASHPACK_DIR := $(TOP_DIR)/utils
+CODK_FLASHPACK_DIR := $(TOP_DIR)/flashpack
 CODK_FLASHPACK_TAG := master
 OUT_DIR := $(TOP_DIR)/out
 ZEPHYR_DIR := $(TOP_DIR)/../zephyr
