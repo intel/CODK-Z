@@ -1,14 +1,17 @@
-M_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-OUT_DIR := $(M_DIR)/out
-Z_DIR := $(M_DIR)/../zephyr
-Z_DIR_REL := $(shell $(M_DIR)/relpath "$(M_DIR)" "$(Z_DIR)")
-Z_VER := 1.4.0
-ZSDK_VER := 0.8.1
-SW_DIR := $(M_DIR)/software
-FW_DIR := $(M_DIR)/firmware
-P-X86 ?= $(SW_DIR)/examples/hello
-P-ARC ?= $(FW_DIR)/examples/hello
-export CODK_DIR ?= $(M_DIR)
+TOP_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+CODK_FLASHPACK_URL := https://github.com/01org/CODK-Z-Flashpack.git
+CODK_FLASHPACK_DIR := $(TOP_DIR)/utils
+CODK_FLASHPACK_TAG := master
+OUT_DIR := $(TOP_DIR)/out
+ZEPHYR_DIR := $(TOP_DIR)/../zephyr
+ZEPHYR_DIR_REL = $(shell $(CODK_FLASHPACK_DIR)/relpath "$(TOP_DIR)" "$(ZEPHYR_DIR)")
+ZEPHYR_VER := 1.4.0
+ZEPHYR_SDK_VER := 0.8.1
+FW_DIR := $(TOP_DIR)/firmware
+SW_DIR := $(TOP_DIR)/software
+FWPROJ_DIR ?= $(FW_DIR)/examples/hello
+SWPROJ_DIR ?= $(SW_DIR)/examples/hello
+export CODK_DIR ?= $(TOP_DIR)
 
 help:
 	@echo "Install dependencies: sudo make install-dep"
@@ -23,35 +26,47 @@ check-root:
 install-dep: check-root
 	apt-get update
 	apt-get install -y git make gcc gcc-multilib g++ libc6-dev-i386 g++-multilib python3-ply
-	cp -f $(M_DIR)/utils/drivers/rules.d/*.rules /etc/udev/rules.d/
+	cp -f $(CODK_FLASHPACK_DIR)/drivers/rules.d/*.rules /etc/udev/rules.d/
 
-setup:
-	@./install-zephyr.sh $(Z_VER) $(ZSDK_VER)
+setup: clone
+	@$(CODK_FLASHPACK_DIR)/install-zephyr.sh $(ZEPHYR_VER) $(ZEPHYR_SDK_VER)
+
+clone: $(CODK_FLASHPACK_DIR)
+
+$(CODK_FLASHPACK_DIR):
+	git clone -b $(CODK_FLASHPACK_TAG) $(CODK_FLASHPACK_URL) $(CODK_FLASHPACK_DIR)
 
 check-source:
-	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(Z_DIR_REL)/zephyr-env.sh" ; exit 1 ; fi
+	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(ZEPHYR_DIR_REL)/zephyr-env.sh" ; exit 1 ; fi
 
 compile: compile-firmware compile_software
 
 compile-firmware: check-source
 	@test -d out || mkdir out
 	@echo Compiling x86 core
-	make O=$(OUT_DIR)/x86 BOARD=arduino_101_factory ARCH=x86 -C $(P-X86)
+	$(MAKE) O=$(OUT_DIR)/x86 BOARD=arduino_101_factory ARCH=x86 -C $(FWPROJ_DIR)
 
 compile-software: check-source
 	@test -d out || mkdir out
 	@echo Compiling ARC core
-	make O=$(OUT_DIR)/arc BOARD=arduino_101_sss_factory ARCH=arc -C $(P-ARC)
+	$(MAKE) O=$(OUT_DIR)/arc BOARD=arduino_101_sss_factory ARCH=arc -C $(SWPROJ_DIR)
 
-upload-dfu:
-	@echo Uploading compiled binaries using DFU
-	$(M_DIR)/utils/flash_dfu.sh -a $(M_DIR)/out/arc/zephyr.bin -x $(M_DIR)/out/x86/zephyr.bin
+upload: upload-firmware-dfu upload-software-dfu
 
-upload-jtag:
-	@echo Uploading compiled binaries using JTAG
-	$(M_DIR)/utils/flash_jtag.sh -a $(M_DIR)/out/arc/zephyr.bin -x $(M_DIR)/out/x86/zephyr.bin
+upload-fitmware-dfu:
+	$(CODK_FLASHPACK_DIR)/flash_dfu.sh -x $(OUT_DIR)/x86/zephyr.bin
+
+upload-software-dfu:
+	$(CODK_FLASHPACK_DIR)/flash_dfu.sh -a $(OUT_DIR)/arc/zephyr.bin
+
+upload-jtag: upload-firmware-jtag upload-software-jtag
+
+upload-fitmware-jtag:
+	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -x $(OUT_DIR)/x86/zephyr.bin
+
+upload-software-jtag:
+	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -a $(OUT_DIR)/arc/zephyr.bin
 
 clean: check-source
 	rm -rf $(OUT_DIR)
-
-.PHONY: help check-root install-dep setup compile upload clean
+	
