@@ -2,4 +2,4 @@
 *.o
 *.o.cmd
 .DS_Store
-/utils/
+/flashpack/
