@@ -10,7 +10,7 @@
 
 ### Installation
 ```
-mkdir CODK && cd $_
+mkdir -p ~/CODK && cd $_
 git clone https://github.com/01org/CODK-Z.git
 cd CODK-Z
 make clone
