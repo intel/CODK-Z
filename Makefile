@@ -3,14 +3,16 @@ CODK_FLASHPACK_URL := https://github.com/01org/CODK-Z-Flashpack.git
 CODK_FLASHPACK_DIR := $(TOP_DIR)/flashpack
 CODK_FLASHPACK_TAG := master
 OUT_DIR := $(TOP_DIR)/out
+OUT_X86_DIR := $(OUT_DIR)/x86
+OUT_ARC_DIR := $(OUT_DIR)/arc
 ZEPHYR_DIR := $(TOP_DIR)/../zephyr
 ZEPHYR_DIR_REL = $(shell $(CODK_FLASHPACK_DIR)/relpath "$(TOP_DIR)" "$(ZEPHYR_DIR)")
 ZEPHYR_VER := 1.4.0
 ZEPHYR_SDK_VER := 0.8.1
-FW_DIR := $(TOP_DIR)/firmware
-SW_DIR := $(TOP_DIR)/software
-FWPROJ_DIR ?= $(FW_DIR)/examples/hello
-SWPROJ_DIR ?= $(SW_DIR)/examples/hello
+X86_DIR := $(TOP_DIR)/x86
+ARC_DIR := $(TOP_DIR)/arc
+X86_PROJ_DIR ?= $(X86_DIR)/examples/hello
+ARC_PROJ_DIR ?= $(ARC_DIR)/examples/hello
 CODK_DIR ?= $(TOP_DIR)
 
 help:
@@ -34,33 +36,33 @@ $(CODK_FLASHPACK_DIR):
 check-source:
 	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(ZEPHYR_DIR_REL)/zephyr-env.sh" ; exit 1 ; fi
 
-compile: compile-firmware compile-software
+compile: compile-x86 compile-arc
 
-compile-firmware: check-source
+compile-x86: check-source
 	@test -d out || mkdir out
 	@echo Compiling x86 core
-	$(MAKE) O=$(OUT_DIR)/x86 BOARD=arduino_101_factory ARCH=x86 -C $(FWPROJ_DIR)
+	$(MAKE) O=$(OUT_X86_DIR) BOARD=arduino_101_factory ARCH=x86 -C $(X86_PROJ_DIR)
 
-compile-software: check-source
+compile-arc: check-source
 	@test -d out || mkdir out
 	@echo Compiling ARC core
-	$(MAKE) O=$(OUT_DIR)/arc BOARD=arduino_101_sss_factory ARCH=arc -C $(SWPROJ_DIR)
+	$(MAKE) O=$(OUT_ARC_DIR) BOARD=arduino_101_sss_factory ARCH=arc -C $(ARC_PROJ_DIR)
 
-upload: upload-firmware-dfu upload-software-dfu
+upload: upload-x86-dfu upload-arc-dfu
 
-upload-firmware-dfu:
-	$(CODK_FLASHPACK_DIR)/flash_dfu.sh -x $(OUT_DIR)/x86/zephyr.bin
+upload-x86-dfu:
+	$(CODK_FLASHPACK_DIR)/flash_dfu.sh -x $(OUT_X86_DIR)/zephyr.bin
 
-upload-software-dfu:
-	$(CODK_FLASHPACK_DIR)/flash_dfu.sh -a $(OUT_DIR)/arc/zephyr.bin
+upload-arc-dfu:
+	$(CODK_FLASHPACK_DIR)/flash_dfu.sh -a $(OUT_ARC_DIR)/zephyr.bin
 
-upload-jtag: upload-firmware-jtag upload-software-jtag
+upload-jtag: upload-x86-jtag upload-arc-jtag
 
-upload-firmware-jtag:
-	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -x $(OUT_DIR)/x86/zephyr.bin
+upload-x86-jtag:
+	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -x $(OUT_X86_DIR)/zephyr.bin
 
-upload-software-jtag:
-	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -a $(OUT_DIR)/arc/zephyr.bin
+upload-arc-jtag:
+	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -a $(OUT_ARC_DIR)/zephyr.bin
 
 clean: check-source
 	rm -rf $(OUT_DIR)
