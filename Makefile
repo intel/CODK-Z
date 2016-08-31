@@ -67,3 +67,11 @@ upload-arc-jtag:
 clean: check-source
 	rm -rf $(OUT_DIR)
 	
+debug-server:
+	$(CODK_FLASHPACK_DIR)/bin/openocd -f $(CODK_FLASHPACK_DIR)/scripts/interface/ftdi/flyswatter2.cfg -f $(CODK_FLASHPACK_DIR)/scripts/board/quark_se.cfg
+
+debug-x86:
+	gdb $(OUT_X86_DIR)/zephyr.elf
+
+debug-arc:
+	$(TOP_DIR)/../zephyr-sdk/sysroots/i686-pokysdk-linux/usr/bin/arc-poky-elf/arc-poky-elf-gdb $(OUT_ARC_DIR)/zephyr.elf
