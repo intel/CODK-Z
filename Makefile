@@ -2,6 +2,7 @@ TOP_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 CODK_FLASHPACK_URL := https://github.com/01org/CODK-Z-Flashpack.git
 CODK_FLASHPACK_DIR := $(TOP_DIR)/flashpack
 CODK_FLASHPACK_TAG := master
+BLE_IMAGE := $(CODK_FLASHPACK_DIR)/images/firmware/ble_core/imagev3.bin
 OUT_DIR := $(TOP_DIR)/out
 OUT_X86_DIR := $(OUT_DIR)/x86
 OUT_ARC_DIR := $(OUT_DIR)/arc
@@ -64,6 +65,9 @@ upload-x86-jtag:
 
 upload-arc-jtag:
 	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -a $(OUT_ARC_DIR)/zephyr.bin
+
+upload-ble-dfu:
+	cd $(CODK_FLASHPACK_DIR) && $(CODK_FLASHPACK_DIR)/flash_ble_dfu.sh $(BLE_IMAGE)
 
 clean: check-source
 	rm -rf $(OUT_DIR)
