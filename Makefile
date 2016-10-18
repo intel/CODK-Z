@@ -2,6 +2,7 @@ TOP_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 CODK_FLASHPACK_URL := https://github.com/01org/CODK-Z-Flashpack.git
 CODK_FLASHPACK_DIR := $(TOP_DIR)/flashpack
 CODK_FLASHPACK_TAG := master
+GEN_USER_ENV := $(CODK_FLASHPACK_DIR)/gen_user_env.sh
 BLE_IMAGE := $(CODK_FLASHPACK_DIR)/images/firmware/ble_core/imagev3.bin
 OUT_DIR := $(TOP_DIR)/out
 OUT_X86_DIR := $(OUT_DIR)/x86
@@ -10,8 +11,11 @@ ZEPHYR_DIR := $(TOP_DIR)/../zephyr
 ZEPHYR_DIR_REL = $(shell $(CODK_FLASHPACK_DIR)/relpath "$(TOP_DIR)" "$(ZEPHYR_DIR)")
 ZEPHYR_VER := 1.5.0
 ZEPHYR_SDK_VER := 0.8.1
+PROJ_DIR := my_project
 X86_DIR := $(TOP_DIR)/x86
 ARC_DIR := $(TOP_DIR)/arc
+BLANK_X86 := $(X86_DIR)/examples/blank
+BLANK_ARC := $(ARC_DIR)/examples/blank
 X86_PROJ_DIR ?= $(X86_DIR)/examples/hello
 ARC_PROJ_DIR ?= $(ARC_DIR)/examples/hello
 CODK_DIR ?= $(TOP_DIR)
@@ -20,6 +24,7 @@ help:
 	@echo
 	@echo "CODK-Z available targets"
 	@echo
+	@echo "project         : create new blank project (PROJ_DIR variable must be set)"
 	@echo "convert-sketch  : convert *.ino to *.cpp (SKETCH variable must be set)"
 	@echo "compile-x86     : compile the x86 application in X86_PROJ_DIR"
 	@echo "compile-arc     : compile the ARC application in ARC_PROJ_DIR"
@@ -58,6 +63,13 @@ $(CODK_FLASHPACK_DIR):
 
 check-source:
 	@if [ -z "$(value ZEPHYR_BASE)" ]; then echo "Please run: source $(ZEPHYR_DIR_REL)/zephyr-env.sh" ; exit 1 ; fi
+
+project:
+	@if [ -d $(PROJ_DIR) ]; then echo "$(PROJ_DIR) already exists."; exit 1; fi
+	@mkdir $(CODK_DIR)/$(PROJ_DIR)
+	@cp -r $(BLANK_ARC) $(CODK_DIR)/$(PROJ_DIR)/arc
+	@cp -r $(BLANK_X86) $(CODK_DIR)/$(PROJ_DIR)/x86
+	@$(GEN_USER_ENV) $(CODK_DIR) $(PROJ_DIR)
 
 compile: compile-x86 compile-arc
 
