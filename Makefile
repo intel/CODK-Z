@@ -14,8 +14,8 @@ ZEPHYR_SDK_VER := 0.8.1
 PROJ_DIR := my_project
 X86_DIR := $(TOP_DIR)/x86
 ARC_DIR := $(TOP_DIR)/arc
-BLANK_X86 := $(X86_DIR)/examples/blank
-BLANK_ARC := $(ARC_DIR)/examples/blank
+X86_PROJ ?= $(X86_DIR)/examples/blank
+ARC_PROJ ?= $(ARC_DIR)/examples/blank
 X86_PROJ_DIR ?= $(X86_DIR)/examples/hello
 ARC_PROJ_DIR ?= $(ARC_DIR)/examples/hello
 CODK_DIR ?= $(TOP_DIR)
@@ -67,8 +67,8 @@ check-source:
 project:
 	@if [ -d $(PROJ_DIR) ]; then echo "$(PROJ_DIR) already exists."; exit 1; fi
 	@mkdir $(CODK_DIR)/$(PROJ_DIR)
-	@cp -r $(BLANK_ARC) $(CODK_DIR)/$(PROJ_DIR)/arc
-	@cp -r $(BLANK_X86) $(CODK_DIR)/$(PROJ_DIR)/x86
+	@cp -r $(ARC_PROJ) $(CODK_DIR)/$(PROJ_DIR)/arc
+	@cp -r $(X86_PROJ) $(CODK_DIR)/$(PROJ_DIR)/x86
 	@$(GEN_USER_ENV) $(CODK_DIR) $(PROJ_DIR)
 
 compile: compile-x86 compile-arc
