@@ -24,21 +24,24 @@ help:
 	@echo
 	@echo "CODK-Z available targets"
 	@echo
-	@echo "project         : create new blank project (PROJ_DIR variable must be set)"
-	@echo "convert-sketch  : convert *.ino to *.cpp (SKETCH variable must be set)"
-	@echo "compile-x86     : compile the x86 application in X86_PROJ_DIR"
-	@echo "compile-arc     : compile the ARC application in ARC_PROJ_DIR"
-	@echo "compile         : compile x86 and ARC applications"
-	@echo "upload-x86-dfu  : upload the x86 application (USB cable & dfu-util)"
-	@echo "upload-arc-dfu  : upload the ARC application (USB cable & dfu-util)"
-	@echo "upload          : upload the ARC and x86 applications (USB cable & dfu-util)"
-	@echo "upload-x86-jtag : upload the x86 application (JTAG & OpenOCD)"
-	@echo "upload-arc-jtag : upload the ARC application (JTAG & OpenOCD)"
-	@echo "upload-jtag     : upload the ARC and x86 applications (JTAG & OpenOCD)"
-	@echo "upload-ble-dfu  : upload the Nordic BLE firmware (USB cable & dfu-util)"
-	@echo "debug-server    : start OpenOCD server"
-	@echo "debug-x6        : Debug x86 application with GDB"
-	@echo "debug-arc       : Debug ARC application with GDB"
+	@echo "project            : create new blank project (PROJ_DIR variable must be set)"
+	@echo "convert-sketch     : convert *.ino to *.cpp (SKETCH variable must be set)"
+	@echo "compile-x86        : compile the x86 application in X86_PROJ_DIR"
+	@echo "compile-arc        : compile the ARC application in ARC_PROJ_DIR"
+	@echo "compile            : compile x86 and ARC applications"
+	@echo "upload-x86-dfu     : upload the x86 application (USB cable & dfu-util)"
+	@echo "upload-arc-dfu     : upload the ARC application (USB cable & dfu-util)"
+	@echo "upload             : upload the ARC and x86 applications (USB cable & dfu-util)"
+	@echo "upload-x86-jtag    : upload the x86 application (JTAG, OpenOCD, & Flyswatter2)"
+	@echo "upload-arc-jtag    : upload the ARC application (JTAG, OpenOCD. & Flyswatter2)"
+	@echo "upload-jtag        : upload the ARC and x86 applications (JTAG, OpenOCD, & Flyswatter2)"
+	@echo "upload-x86-jlink   : upload the x86 application (JTAG, OpenOCD, & JLink)"
+	@echo "upload-arc-jlink   : upload the ARC application (JTAG, OpenOCD. & JLink)"
+	@echo "upload-jlink       : upload the ARC and x86 applications (JTAG, OpenOCD, & JLink)"
+	@echo "upload-ble-dfu     : upload the Nordic BLE firmware (USB cable & dfu-util)"
+	@echo "debug-server       : start OpenOCD server"
+	@echo "debug-x6           : Debug x86 application with GDB"
+	@echo "debug-arc          : Debug ARC application with GDB"
 	@echo
 	@exit 1
 
@@ -98,6 +101,14 @@ upload-x86-jtag:
 
 upload-arc-jtag:
 	$(CODK_FLASHPACK_DIR)/flash_jtag.sh -a $(OUT_ARC_DIR)/zephyr.bin
+
+upload-jlink: upload-x86-jlink upload-arc-jlink
+
+upload-x86-jlink:
+	$(CODK_FLASHPACK_DIR)/flash_jlink.sh -x $(OUT_X86_DIR)/zephyr.bin
+
+upload-arc-jlink:
+	$(CODK_FLASHPACK_DIR)/flash_jlink.sh -a $(OUT_ARC_DIR)/zephyr.bin
 
 upload-ble-dfu:
 	cd $(CODK_FLASHPACK_DIR) && $(CODK_FLASHPACK_DIR)/flash_ble_dfu.sh $(BLE_IMAGE)
