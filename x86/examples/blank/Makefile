@@ -1,6 +1,4 @@
-MDEF_FILE = prj.mdef
-BOARD ?= arduino_101_factory
-KERNEL_TYPE ?= micro
+BOARD ?= arduino_101
 CONF_FILE = prj.conf
 
 include ${ZEPHYR_BASE}/Makefile.inc

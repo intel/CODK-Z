@@ -1,19 +1,21 @@
-/*
- * Copyright (c) 2012-2014 Wind River Systems, Inc.
- * Copyright (c) 2016 Intel Corporation
+/* IPM (Inter-Processor Mailbox) sample application for ARC processor
+ * Copyright (C) 2017 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
 #include <zephyr.h>
 
 #include <ipm.h>
@@ -23,80 +25,51 @@
 #include <misc/printk.h>
 #include <string.h>
 
-QUARK_SE_IPM_DEFINE(ping_ipm, 0, QUARK_SE_IPM_INBOUND);
-QUARK_SE_IPM_DEFINE(message_ipm0, 1, QUARK_SE_IPM_INBOUND);
-QUARK_SE_IPM_DEFINE(message_ipm1, 2, QUARK_SE_IPM_INBOUND);
-QUARK_SE_IPM_DEFINE(message_ipm2, 3, QUARK_SE_IPM_INBOUND);
+QUARK_SE_IPM_DEFINE(ipm_receive_channel, 0, QUARK_SE_IPM_INBOUND);
+QUARK_SE_IPM_DEFINE(ipm_send_channel, 1, QUARK_SE_IPM_OUTBOUND);
 
-/* specify delay between greetings (in ms); compute equivalent in ticks */
+#define PRIORITY      7
+#define IPM_DATA_SIZE 16
+#define DELAY         1000
+#define STACKSIZE     2048
 
-#define SLEEPTIME  1100
-#define SLEEPTICKS (SLEEPTIME * sys_clock_ticks_per_sec / 800)
+static volatile bool received;
+static volatile char received_data[IPM_DATA_SIZE];
+static const char *send_data = "Hey, it's ARC!!";
 
-#define STACKSIZE 2000
-
-char fiberStack[STACKSIZE];
-uint8_t counters[3];
-
-struct nano_sem nanoSemTask;
-struct nano_sem nanoSemFiber;
-
-void ping_ipm_callback(void *context, uint32_t id, volatile void *data)
+static void ipm_callback(void *context, uint32_t id, volatile void *data)
 {
-	printk("counters: %d %d %d\n", counters[0], counters[1], counters[2]);
-}
+    volatile char *p = data;
 
-static const char dat1[] = "abcdefghijklmno";
-static const char dat2[] = "pqrstuvwxyz0123";
+    /* Copy data from mailbox to local buffer */
+    for (unsigned i = 0; i < IPM_DATA_SIZE; ++i)
+        received_data[i] = p[i];
 
-
-void message_ipm_callback(void *context, uint32_t id, volatile void *data)
-{
-	uint8_t *counter = (uint8_t *)context;
-	char *datac = (char *)data;
-	const char *expected;
-
-	if (*counter != id) {
-		printk("expected %d got %d\n", *counter, id);
-	}
-
-	if (id & 0x1) {
-		expected = dat2;
-	} else {
-		expected = dat1;
-	}
-
-	if (strcmp(expected, datac)) {
-		printk("unexpected data payload\n");
-	}
-	(*counter)++;
+    received = true;
 }
 
 void main(void)
 {
-	struct device *ipm;
+    struct device *ipm_send_dev = device_get_binding("ipm_send_channel");
+    struct device *ipm_receive_dev = device_get_binding("ipm_receive_channel");
+    ipm_register_callback(ipm_receive_dev, ipm_callback, NULL);
+    ipm_set_enabled(ipm_receive_dev, 1);
 
-	ipm = device_get_binding("ping_ipm");
-	ipm_register_callback(ipm, ping_ipm_callback, NULL);
-	ipm_set_enabled(ipm, 1);
+    while (1) {
+        /* Send message to x86 core */
+        ipm_send(ipm_send_dev, 1, 0, send_data, IPM_DATA_SIZE);
 
-	ipm = device_get_binding("message_ipm0");
-	ipm_register_callback(ipm, message_ipm_callback, &counters[0]);
-	ipm_set_enabled(ipm, 1);
+        /* Wait for response */
+        while(!received);
 
-	ipm = device_get_binding("message_ipm1");
-	ipm_register_callback(ipm, message_ipm_callback, &counters[1]);
-	ipm_set_enabled(ipm, 1);
+        /* Print response */
+        printk("Sent message \"%s\" to x86 core, received response \"%s\"",
+                send_data, received_data);
 
-	ipm = device_get_binding("message_ipm2");
-	ipm_register_callback(ipm, message_ipm_callback, &counters[2]);
-	ipm_set_enabled(ipm, 1);
-
-
-	while (1) {
-		/* say "hello" */
-		printk("Hello from ARC!\n");
-
-		task_sleep(SLEEPTICKS);
-	}
+        received = false;
+        k_sleep(DELAY);
+    }
 }
+
+K_THREAD_DEFINE(main_id, STACKSIZE, main, NULL, NULL, NULL,
+		PRIORITY, 0, K_NO_WAIT);
