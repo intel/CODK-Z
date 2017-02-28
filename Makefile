@@ -9,8 +9,8 @@ OUT_X86_DIR := $(OUT_DIR)/x86
 OUT_ARC_DIR := $(OUT_DIR)/arc
 ZEPHYR_DIR := $(TOP_DIR)/../zephyr
 ZEPHYR_DIR_REL = $(shell $(CODK_FLASHPACK_DIR)/relpath "$(TOP_DIR)" "$(ZEPHYR_DIR)")
-ZEPHYR_VER := 1.5.0
-ZEPHYR_SDK_VER := 0.8.1
+ZEPHYR_VER := 1.6.0
+ZEPHYR_SDK_VER := 0.8.2
 PROJ_DIR := my_project
 X86_DIR := $(TOP_DIR)/x86
 ARC_DIR := $(TOP_DIR)/arc
@@ -76,12 +76,12 @@ compile: compile-x86 compile-arc
 compile-x86: check-source
 	@test -d out || mkdir out
 	@echo Compiling x86 core
-	$(MAKE) O=$(OUT_X86_DIR) BOARD=arduino_101_factory ARCH=x86 -C $(X86_PROJ_DIR)
+	$(MAKE) O=$(OUT_X86_DIR) BOARD=arduino_101 ARCH=x86 -C $(X86_PROJ_DIR)
 
 compile-arc: check-source
 	@test -d out || mkdir out
 	@echo Compiling ARC core
-	$(MAKE) O=$(OUT_ARC_DIR) BOARD=arduino_101_sss_factory ARCH=arc -C $(ARC_PROJ_DIR)
+	$(MAKE) O=$(OUT_ARC_DIR) BOARD=arduino_101_sss ARCH=arc -C $(ARC_PROJ_DIR)
 
 upload: upload-x86-dfu upload-arc-dfu
 
