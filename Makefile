@@ -20,6 +20,16 @@ X86_PROJ_DIR ?= $(X86_DIR)/examples/hello
 ARC_PROJ_DIR ?= $(ARC_DIR)/examples/hello
 CODK_DIR ?= $(TOP_DIR)
 
+SDK_CHECK = $(shell ${ZEPHYR_DIR}/scripts/vercomp $(ZEPHYR_SDK_VER) 0.9 || echo $$?)
+
+TOOLCHAIN_VENDOR := zephyr
+TOOLCHAIN_ARCH := x86_64
+
+ifeq ($(SDK_CHECK),2)
+        TOOLCHAIN_VENDOR := poky
+        TOOLCHAIN_ARCH := i686
+endif
+
 help:
 	@echo
 	@echo "CODK-Z available targets"
@@ -137,4 +147,4 @@ debug-x86:
 	gdb $(OUT_X86_DIR)/zephyr.elf
 
 debug-arc:
-	$(TOP_DIR)/../zephyr-sdk/sysroots/i686-pokysdk-linux/usr/bin/arc-poky-elf/arc-poky-elf-gdb $(OUT_ARC_DIR)/zephyr.elf
+	$(TOP_DIR)/../zephyr-sdk/sysroots/$(TOOLCHAIN_ARCH)-pokysdk-linux/usr/bin/arc-$(TOOLCHAIN_VENDOR)-elf/arc-$(TOOLCHAIN_VENDOR)-elf-gdb $(OUT_ARC_DIR)/zephyr.elf
